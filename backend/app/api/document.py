@@ -34,14 +34,23 @@ async def upload_document(file: UploadFile = File(...)):
                 "id": str(uuid4()),
                 "vector": embedding.tolist(),
                 "payload": {
-                    "chunk": chunk
-                }
+                    "chunk": chunk,
+                    "source_file": file.filename
+                },
+                
+
             }
         )
     client.upsert(
         collection_name="knowledge_base",
         points=points
     )
+    result = client.query_points(
+        collection_name="knowledge_base",
+        query_vector=get_embeddings("What is the capital of France?").tolist(),
+        limit=1)
+    print("Query result:", result.points[0].payload)
+
     print("Documents uploaded successfully.")
     return {
         "filename": file.filename,
