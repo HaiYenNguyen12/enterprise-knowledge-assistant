@@ -2,7 +2,9 @@ from fastapi import FastAPI
 from backend.app.api.document import router as document_router
 from backend.app.models.question import QuestionRequest
 from backend.app.services.rag_service import RagService
+from backend.app.services.document_service import DocumentService
 from backend.app.repositories.qdrant_repository import QdrantRepository
+from backend.app.repositories.document_repository import DocumentRepository
 from backend.app.core.qdrant_client import client
 from qdrant_client.models import VectorParams, Distance
 
@@ -14,7 +16,9 @@ app = FastAPI(
 )
 
 qdrant_repository = QdrantRepository(client)
+doc_repository = DocumentRepository()
 rag_service = RagService (qdrant_repository)
+doc_service = DocumentService(document_repository = doc_repository , qdrant_repository=qdrant_repository)
 
 @app.on_event("startup")
 def startup_event():
@@ -39,3 +43,6 @@ def ask_question(request: QuestionRequest):
     return {
         "question": request.question,
         "response": response}
+
+
+    

@@ -36,3 +36,18 @@ class QdrantRepository:
             query=query_vector,
             limit=limit
         )
+    
+    def delete_chunks_by_document_id(self,document_id):
+        self.client.delete(
+            collection_name="knowledge_base",
+            points_selector=models.FilterSelector(
+                filter=models.Filter(
+                    must=[
+                        models.FieldCondition(
+                            key="document_id",
+                            match=models.MatchValue(value=document_id)
+                        )
+                    ]
+                )
+            )
+        )

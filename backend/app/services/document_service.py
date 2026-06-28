@@ -6,6 +6,7 @@ from backend.app.services.chunk_service import split_text_into_chunks
 from backend.app.services.embedding_service import get_embeddings
 from fastapi import UploadFile
 
+
 class DocumentService:
     def __init__(self, document_repository, qdrant_repository):
         self.document_repository = document_repository
@@ -59,6 +60,20 @@ class DocumentService:
     
     def get_documents(self):
         return self.document_repository.get_documents();
+
+    def delete_document(self,document_id):
+        document = self.document_repository.get_document_by_id(document_id)
+        if document is None:
+            raise ValueError(f"Document '{document_id}' not found")
+        # try:
+        self.qdrant_repository.delete_chunks_by_document_id(document_id)
+        Path(document["file_path"]).unlink(missing_ok=True)
+        self.document_repository.delete_document(document_id)
+        # except Exception as e:
+            # logger.exception("Failed to delete document")
+            # raise
+
+
 
 
 

@@ -26,9 +26,18 @@ class DocumentRepository:
         conn.close()
         return documents
     
+    def get_document_by_id(self,document_id):
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM documents where document_id = ?",(document_id,))
+        document = cursor.fetchone()
+        conn.close()
+        return document
+    
     def delete_document(self, document_id):
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("DELETE FROM documents WHERE document_id = ?", (document_id,))
         conn.commit()
         conn.close()
+   
