@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from backend.app.api.document import router as document_router
 from backend.app.models.question import QuestionRequest
-from backend.app.services.rag_service import answer_question
+from backend.app.services.rag_service import RagService
+from backend.app.repositories.qdrant_repository import QdrantRepository
 from backend.app.core.qdrant_client import client
 from qdrant_client.models import VectorParams, Distance
 
@@ -11,6 +12,9 @@ app = FastAPI(
     description="API for the Enterprise Knowledge Assistant application.",
     version="1.0.0",
 )
+
+qdrant_repository = QdrantRepository(client)
+rag_service = RagService (qdrant_repository)
 
 @app.on_event("startup")
 def startup_event():
@@ -31,7 +35,7 @@ def read_root():
   
 @app.post("/ask")
 def ask_question(request: QuestionRequest):
-    response = answer_question(request.question)
+    response = rag_service.answer_question(request.question, request.document_ids)
     return {
         "question": request.question,
         "response": response}
