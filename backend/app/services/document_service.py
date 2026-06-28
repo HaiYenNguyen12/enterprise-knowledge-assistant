@@ -5,6 +5,7 @@ from backend.app.services.pdf_service import extract_text_from_pdf
 from backend.app.services.chunk_service import split_text_into_chunks
 from backend.app.services.embedding_service import get_embeddings
 from fastapi import UploadFile
+from backend.app.exceptions.document_exception import DocumentNotFoundException
 
 
 class DocumentService:
@@ -14,7 +15,7 @@ class DocumentService:
 
     async def upload_document(self, file: UploadFile):
       file_location = None
-
+      document_id = None
       try:
         file_location = await self._save_file(file)
         document_id = str(uuid4())
@@ -44,11 +45,12 @@ class DocumentService:
                   }
               )
         self.qdrant_repository.upsert_chunks(points)
-      except Exception as e:
-          self.document_repository.delete_document(document_id)
+      except Exception:
+          if document_id:
+            self.document_repository.delete_document(document_id)
           if file_location and Path(file_location).exists():
               Path(file_location).unlink()
-          print(f"Error uploading document: {e}")
+        #   print(f"Error uploading document: {e}")
 
           raise 
       return {
@@ -64,7 +66,8 @@ class DocumentService:
     def delete_document(self,document_id):
         document = self.document_repository.get_document_by_id(document_id)
         if document is None:
-            raise ValueError(f"Document '{document_id}' not found")
+            # raise ValueError(f"Document '{document_id}' not found")
+            raise DocumentNotFoundException(document_id)
         # try:
         self.qdrant_repository.delete_chunks_by_document_id(document_id)
         Path(document["file_path"]).unlink(missing_ok=True)

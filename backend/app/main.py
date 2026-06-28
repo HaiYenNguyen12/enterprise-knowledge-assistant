@@ -6,13 +6,16 @@ from backend.app.core.qdrant_client import client
 from qdrant_client.models import VectorParams, Distance
 from backend.app.core.dependencies import get_rag_service
 from fastapi import Depends
+from backend.app.core.exception_handler import document_not_found_exception_handler
+from backend.app.exceptions.document_exception import DocumentNotFoundException
+
 
 app = FastAPI(
     title="Enterprise Knowledge Assistant API",
     description="API for the Enterprise Knowledge Assistant application.",
     version="1.0.0",
 )
-
+app.add_exception_handler(DocumentNotFoundException,document_not_found_exception_handler)
 # qdrant_repository = QdrantRepository(client)
 # doc_repository = DocumentRepository()
 # rag_service = RagService (qdrant_repository)
