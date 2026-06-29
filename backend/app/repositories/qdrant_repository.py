@@ -1,5 +1,5 @@
 from qdrant_client import QdrantClient,models
-
+from backend.app.core.settings import settings
 
 class QdrantRepository:
     def __init__(self, client):
@@ -7,12 +7,12 @@ class QdrantRepository:
 
 
     def get_collection (self):
-       return self.client.get_collection(collection_name="knowledge_base")
+       return self.client.get_collection(collection_name=settings.collection_name)
 
 
     def upsert_chunks(self, points):
         self.client.upsert(
-            collection_name="knowledge_base",
+            collection_name=settings.collection_name,
             points=points
         )
     
@@ -31,7 +31,7 @@ class QdrantRepository:
             query_filter = None
 
         return self.client.query_points(
-            collection_name="knowledge_base",
+            collection_name=settings.collection_name,
             query_filter = query_filter,
             query=query_vector,
             limit=limit
@@ -39,7 +39,7 @@ class QdrantRepository:
     
     def delete_chunks_by_document_id(self,document_id):
         self.client.delete(
-            collection_name="knowledge_base",
+            collection_name=settings.collection_name,
             points_selector=models.FilterSelector(
                 filter=models.Filter(
                     must=[

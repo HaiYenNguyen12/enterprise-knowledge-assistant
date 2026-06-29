@@ -1,12 +1,13 @@
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams
+from app.core.settings import settings
 
-client = QdrantClient(host="localhost", port=6333)
+client = QdrantClient(host=settings.qdrant_host, port=settings.qdrant_port)
 print(client.get_collections())
 
 client.create_collection(
-    collection_name="knowledge_base",
-    vectors_config=VectorParams(size=384, distance=Distance.COSINE)
+    collection_name=settings.collection_name,
+    vectors_config=VectorParams(size=settings.embedding_dimension, distance=Distance.COSINE)
 )
 
-print("Collection 'knowledge_base' created successfully.")
+print(f"Collection {settings.collection_name} created successfully.")

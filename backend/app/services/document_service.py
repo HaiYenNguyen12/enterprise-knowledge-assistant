@@ -5,8 +5,11 @@ from backend.app.services.pdf_service import extract_text_from_pdf
 from backend.app.services.chunk_service import split_text_into_chunks
 from backend.app.services.embedding_service import get_embeddings
 from fastapi import UploadFile
+from backend.app.core.settings import settings
 from backend.app.exceptions.document_exception import DocumentNotFoundException
+import logging
 
+logger = logging.getLogger(__name__)
 
 class DocumentService:
     def __init__(self, document_repository, qdrant_repository):
@@ -18,6 +21,7 @@ class DocumentService:
       document_id = None
       try:
         file_location = await self._save_file(file)
+        raise Exception("Test logging")
         document_id = str(uuid4())
         size = Path(file_location).stat().st_size
         self.document_repository.create_document(
@@ -50,7 +54,7 @@ class DocumentService:
             self.document_repository.delete_document(document_id)
           if file_location and Path(file_location).exists():
               Path(file_location).unlink()
-        #   print(f"Error uploading document: {e}")
+          logger.exception("Failed to upload document")
 
           raise 
       return {
@@ -81,7 +85,7 @@ class DocumentService:
 
 
     async def _save_file(self, file):
-        UPLOAD_DIR = Path("uploads")
+        UPLOAD_DIR = Path(settings.upload_folder)
         UPLOAD_DIR.mkdir(exist_ok=True)
         file_location = UPLOAD_DIR / file.filename    
         with open(file_location, "wb") as buffer:

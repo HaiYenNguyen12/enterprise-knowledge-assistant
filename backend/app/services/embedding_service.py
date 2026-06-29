@@ -1,5 +1,6 @@
 from sentence_transformers import SentenceTransformer
-model = SentenceTransformer('BAAI/bge-small-en-v1.5')
+from backend.app.core.settings import settings
+model = SentenceTransformer(settings.embedding_model)
 
 def get_embeddings(text: str):
     return model.encode(text)

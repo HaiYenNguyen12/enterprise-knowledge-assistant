@@ -8,7 +8,12 @@ from backend.app.core.dependencies import get_rag_service
 from fastapi import Depends
 from backend.app.core.exception_handler import document_not_found_exception_handler
 from backend.app.exceptions.document_exception import DocumentNotFoundException
+import backend.app.core.logger
+from backend.app.core.settings import settings
 
+
+print("---------------------------------------")
+print(settings.database_name)
 
 app = FastAPI(
     title="Enterprise Knowledge Assistant API",
@@ -25,9 +30,9 @@ app.add_exception_handler(DocumentNotFoundException,document_not_found_exception
 def startup_event():
     collections = client.get_collections()
     collection_names = [collection.name for collection in collections.collections]
-    if "knowledge_base" not in collection_names:
+    if settings.collection_name not in collection_names:
         client.create_collection(
-            collection_name="knowledge_base",
+            collection_name=settings.collection_name,
             vectors_config=VectorParams(size=384, distance=Distance.COSINE)
         )
     print("Qdrant client initialized and collection checked/created.")
