@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from backend.app.api.document import router as document_router
+from backend.app.models.api_response import ApiResponse
 from backend.app.models.question import QuestionRequest
 from backend.app.services.rag_service import RagService
 from backend.app.core.qdrant_client import client
@@ -10,6 +11,7 @@ from backend.app.core.exception_handler import document_not_found_exception_hand
 from backend.app.exceptions.document_exception import DocumentNotFoundException
 import backend.app.core.logger
 from backend.app.core.settings import settings
+from fastapi import status
 
 
 print("---------------------------------------")
@@ -44,11 +46,14 @@ def read_root():
     return {"message": "Welcome to the Enterprise Knowledge Assistant API"}
   
 @app.post("/ask")
-def ask_question(request: QuestionRequest, rag_service: RagService = Depends(get_rag_service)):
+def ask_question(request: QuestionRequest, rag_service: RagService = Depends(get_rag_service),status_code=status.HTTP_200_OK):
     response = rag_service.answer_question(request.question, request.document_ids)
-    return {
+    result = {
         "question": request.question,
         "response": response}
 
-
-    
+    return ApiResponse(
+        status=True,
+        message="Question answered successfully",
+        data=result
+    )

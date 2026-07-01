@@ -1,6 +1,7 @@
 from uuid import uuid4
 from datetime import datetime
 from pathlib import Path
+from backend.app.models.document import DocumentResponse
 from backend.app.services.pdf_service import extract_text_from_pdf
 from backend.app.services.chunk_service import split_text_into_chunks
 from backend.app.services.embedding_service import get_embeddings
@@ -21,7 +22,7 @@ class DocumentService:
       document_id = None
       try:
         file_location = await self._save_file(file)
-        raise Exception("Test logging")
+        # raise Exception("Test logging")
         document_id = str(uuid4())
         size = Path(file_location).stat().st_size
         self.document_repository.create_document(
@@ -65,7 +66,8 @@ class DocumentService:
       }
     
     def get_documents(self):
-        return self.document_repository.get_documents();
+        documents = self.document_repository.get_documents();
+        return [DocumentResponse(**doc) for doc in documents]
 
     def delete_document(self,document_id):
         document = self.document_repository.get_document_by_id(document_id)
