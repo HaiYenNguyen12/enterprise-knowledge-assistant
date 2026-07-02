@@ -1,7 +1,8 @@
+from itertools import count
 from uuid import uuid4
 from datetime import datetime
 from pathlib import Path
-from backend.app.models.document import DocumentResponse
+from backend.app.models.document import DocumentResponse, DocumentsResponse, PaginationResponse
 from backend.app.services.pdf_service import extract_text_from_pdf
 from backend.app.services.chunk_service import split_text_into_chunks
 from backend.app.services.embedding_service import get_embeddings
@@ -65,9 +66,13 @@ class DocumentService:
           "num_chunks": len(chunks)
       }
     
-    def get_documents(self):
-        documents = self.document_repository.get_documents();
-        return [DocumentResponse(**doc) for doc in documents]
+    def get_documents(self, page: int, page_size: int, keyword: str | None = None, sort_by: str = "created_at", sort_order: str = "desc"):
+        offset = (page - 1) * page_size
+        limit = page_size
+        documents, total_items= self.document_repository.get_documents(offset=offset, limit=limit, keyword=keyword, sort_by=sort_by, sort_order=sort_order)
+
+        documents = [DocumentResponse(**doc) for doc in documents]
+        return documents, total_items
 
     def delete_document(self,document_id):
         document = self.document_repository.get_document_by_id(document_id)
