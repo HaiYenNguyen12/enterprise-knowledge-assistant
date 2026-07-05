@@ -1,4 +1,3 @@
-Tôi sẽ viết cho bạn theo đúng những gì **chúng ta đã xây dựng trong 15 ngày**, không phải một README chung chung trên mạng. README này đủ chất lượng để đưa lên GitHub và khi recruiter mở vào sẽ hiểu ngay project của bạn.
 
 ````markdown
 # Enterprise Knowledge Assistant
